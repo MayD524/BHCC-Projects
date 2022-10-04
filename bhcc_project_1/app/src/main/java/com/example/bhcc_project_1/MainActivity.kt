@@ -1,6 +1,6 @@
 package com.example.bhcc_project_1
 
-import android.R
+import android.R.attr
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -10,43 +10,51 @@ import androidx.appcompat.app.AppCompatActivity
 
 
 class MainActivity : AppCompatActivity() {
-    var currentCount = 0
-    var gotoCount    = 6
+    private final val SECOND_ACTIVITY_REQUEST_CODE = 0
+    private var gotoCount = 6
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.act)
+        setContentView(R.layout.mainactivity)
 
-        val tview = findViewById<View>(R.id.currentCount) as TextView
-        tview.setText(currentCount)
-        val sub = findViewById<Button>(R.id.subtract)
-        sub.setOnClickListener(View.OnClickListener {
-            // Code here executes on main thread after user presses button
-            currentCount--
-            tview.setText(currentCount)
-            /*if (currentCount == gotoCount) {
-                // start the new activity
-                val i = Intent(this, MainActivity2::class.java)
-                i.putExtra("gotoVal", gotoCount)
-                startActivity(i)
-            }*/
+        var currentCount = 0
 
-        })
+
+        val tview = findViewById<View>(R.id.countText) as TextView
+        tview.text = currentCount.toString()
+
+        val add = findViewById<Button>(R.id.add).also {
+            it.setOnClickListener(View.OnClickListener {
+                currentCount ++
+                tview.text = currentCount.toString()
+
+                if (currentCount == gotoCount) {
+                    val i = Intent(this, MainActivity2::class.java)
+                    i.putExtra("gotoVal", gotoCount)
+                    startActivityForResult(i, SECOND_ACTIVITY_REQUEST_CODE)
+                }
+            })
+        }
+
+        val sub = findViewById<Button>(R.id.subtract).also {
+            it.setOnClickListener(View.OnClickListener {
+                // Code here executes on main thread after user presses button
+                currentCount--
+                tview.text = currentCount.toString()
+                if (currentCount == gotoCount) {
+                    // start the new activity
+                    val i = Intent(this, MainActivity2::class.java)
+                    i.putExtra("gotoVal", gotoCount)
+                    startActivityForResult(i, SECOND_ACTIVITY_REQUEST_CODE)
+                }
+            })
+        }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        // Check that it is the SecondActivity with an OK result
-        if (requestCode == SECOND_ACTIVITY_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-
-                // Get String data from Intent
-                val returnString = data.getStringExtra("keyName")
-
-                // Set text view with string
-                val textView = findViewById<View>(R.id.textView) as TextView
-                textView.text = returnString
-            }
+        if (resultCode == RESULT_OK && data != null) {
+            gotoCount = data.getIntExtra("gotoVal", 0)
         }
     }
 }
