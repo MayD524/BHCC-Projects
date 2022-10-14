@@ -32,6 +32,7 @@ android {
     buildFeatures {
         viewBinding true
     }
+    namespace 'com.example.bhcc_project_1'
 }
 
 dependencies {
